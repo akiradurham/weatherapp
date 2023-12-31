@@ -27,9 +27,9 @@ def validate_input(entered):
 
 
 def get_location(data):
-    input_city = data[0].trim().replace(' ', '+')
-    input_state = data[1].trim().replace(' ', '+') if len(data) >= 2 else None
-    input_country = data[2].trim().replace(' ', '+') if len(data) >= 3 else None
+    input_city = data[0].strip().replace(' ', '+')
+    input_state = data[1].strip().replace(' ', '+') if len(data) >= 2 else None
+    input_country = data[2].strip().replace(' ', '+') if len(data) >= 3 else None
     geocaching(input_city, input_state, input_country)
 
 
@@ -42,20 +42,22 @@ def geocaching(input_city, input_state, input_country):
         longitude = cities['results'][0]['longitude']
         country = cities['results'][0]['country']
 
-        state = None
-        for i in range(1, 4):
-            try:
-                string = f"admin{i}"
-                state = cities['results'][0][string]
-                if input_state.lower() == state.lower():
+        if input_state is not None:
+            state = ''
+            for i in range(1, 4):
+                try:
+                    string = f"admin{i}"
+                    state = cities['results'][0][string]
+                    if input_state.lower() is state.lower():
+                        break
+                except KeyError:
                     break
-            except KeyError:
-                pass
+            if not input_state.lower() is state.lower():
+                raise Exception
 
-        if not country.lower() == input_country.lower():
-            raise Exception
-        if not input_state.lower() == state.lower():
-            raise Exception
+        if input_country is not None:
+            if country.lower() is not input_country.lower():
+                raise Exception
 
         search_location(latitude, longitude)
     except Exception as e:
@@ -87,4 +89,3 @@ def search_location(latitude, longitude):
 
 
 validate_input(get_input())
-
