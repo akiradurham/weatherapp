@@ -11,13 +11,8 @@ def get_input():
     return user_input.split(",")
 
 
-def call_api_func():
+def accepting_input():
     entered = get_input()
-
-    if len(entered) < 1 or len(entered) > 3:
-        print("Too many or too few inputs, ensure to follow input guidelines")
-        call_api_func()
-        return
 
     if validate_input(entered):
         if len(entered) == 1:
@@ -33,11 +28,14 @@ def call_api_func():
 def validate_input(entered):
     messages = ["First", "Second", "Third"]
 
+    if len(entered) < 1 or len(entered) > 3:
+        print("Too many or too few inputs, ensure to follow input guidelines")
+        accepting_input()
+
     for idx, input_data in enumerate(entered):
         if not input_data.strip() or input_data.strip() == '\n':
             print(f"{messages[idx]} input is not valid, ensure to follow input guidelines")
-            call_api_func()
-            return False
+            accepting_input()
     return True
 
 
