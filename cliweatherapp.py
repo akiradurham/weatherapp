@@ -20,10 +20,12 @@ def call_api_func():
         return
 
     if validate_input(entered):
-        message = "Defaulting to largest population with city name match ..." if len(entered) == 1 else (
-            "Matching largest population city and within the state/province ..." if len(entered) == 2
-            else "Matching all three, city name, state/province, and country ..."
-        )
+        if len(entered) == 1:
+            message = "Defaulting to largest population with city name match ..."
+        elif len(entered) == 2:
+            message = "Matching largest population city and within the state/province ..."
+        else:
+            message = "Matching all three, city name, state/province, and country ..."
         print(message)
         get_location(entered)
 
