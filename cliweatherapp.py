@@ -8,22 +8,35 @@ import json
 
 def get_input():
     user_input = input("What city's weather do you want?\nEnter in form: City, State/Province, Country\n")
-    return user_input.split(", ")
+    return user_input.split(",")
+
+
+def call_api_func():
+    entered = get_input()
+
+    if len(entered) < 1 or len(entered) > 3:
+        print("Too many or too few inputs, ensure to follow input guidelines")
+        call_api_func()
+        return
+
+    if validate_input(entered):
+        message = "Defaulting to largest population with city name match ..." if len(entered) == 1 else (
+            "Matching largest population city and within the state/province ..." if len(entered) == 2
+            else "Matching all three, city name, state/province, and country ..."
+        )
+        print(message)
+        get_location(entered)
 
 
 def validate_input(entered):
-    if len(entered) == 1:
-        print("Defaulting to largest population with city name match ...")
-        get_location(entered)
-    elif len(entered) == 2:
-        print("Matching largest population city and within the state/province ...")
-        get_location(entered)
-    elif len:
-        print("Matching all three, city name, state/province, and country ...")
-        get_location(entered)
-    else:
-        print("Input is not valid, ensure to follow input guidelines")
-        validate_input(get_input())
+    messages = ["First", "Second", "Third"]
+
+    for idx, input_data in enumerate(entered):
+        if not input_data.strip() or input_data.strip() == '\n':
+            print(f"{messages[idx]} input is not valid, ensure to follow input guidelines")
+            call_api_func()
+            return False
+    return True
 
 
 def get_location(data):
