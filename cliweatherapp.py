@@ -13,7 +13,6 @@ def get_input():
 
 def accepting_input():
     entered = get_input()
-
     if validate_input(entered):
         if len(entered) == 1:
             message = "Defaulting to largest population with city name match ..."
@@ -29,12 +28,12 @@ def validate_input(entered):
     messages = ["First", "Second", "Third"]
 
     if len(entered) < 1 or len(entered) > 3:
-        print("Too many or too few inputs, ensure to follow input guidelines")
+        print("Too many or too few inputs, ensure to follow input guidelines\n")
         accepting_input()
 
     for idx, input_data in enumerate(entered):
         if not input_data.strip() or input_data.strip() == '\n':
-            print(f"{messages[idx]} input is not valid, ensure to follow input guidelines")
+            print(f"{messages[idx]} input is not valid, ensure to follow input guidelines\n")
             accepting_input()
     return True
 
@@ -73,9 +72,9 @@ def geocaching(input_city, input_state, input_country):
                 raise Exception
 
         search_location(latitude, longitude)
-    except Exception as e:
-        print(e.__repr__())
-        print("Input is not valid location")
+    except Exception:
+        print("Input is not valid location\n")
+        accepting_input()
 
 
 def search_location(latitude, longitude):
@@ -96,9 +95,9 @@ def search_location(latitude, longitude):
         print(f"Elevation {response.Elevation()} m asl")
         print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
         print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
-    except Exception as e:
-        print(e.__repr__())
-        print("API connection error")
+    except Exception:
+        print("API connection error\n")
+        accepting_input()
 
 
-validate_input(get_input())
+accepting_input()
