@@ -41,11 +41,20 @@ def geocaching(input_city, input_state, input_country):
         latitude = cities['results'][0]['latitude']
         longitude = cities['results'][0]['longitude']
         country = cities['results'][0]['country']
-        state = cities['results'][0]['admin1']
 
-        if not country == input_country:
+        state = None
+        for i in range(1, 4):
+            try:
+                string = f"admin{i}"
+                state = cities['results'][0][string]
+                if input_state.lower() == state.lower():
+                    break
+            except KeyError:
+                pass
+
+        if not country.lower() == input_country.lower():
             raise Exception
-        if not input_state == state:
+        if not input_state.lower() == state.lower():
             raise Exception
 
         search_location(latitude, longitude)
