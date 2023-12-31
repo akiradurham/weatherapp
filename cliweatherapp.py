@@ -10,11 +10,15 @@ cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
 retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
 open_meteo = openmeteo_requests.Client(session=retry_session)
 
-user_input = input("What city's weather do you want?\nEnter in form (City, Location)\n")
-location = user_input.split(',')
+user_input = input("What city's weather do you want?\nEnter in form: City, State/Province, Country\n")
+location = user_input.replace(' ', '+')
 
-city_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location[0]}&count=1&language=en&format=json"
+city_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&language=en&format=json"
 cities = json.loads(urlopen(city_url).read())
+
+latitude = cities['results'][0]['latitude']
+longitude = cities['results'][0]['longitude']
+country = cities['results'][0]['country']
 
 url = "https://api.open-meteo.com/v1/forecast"
 params = {
