@@ -7,7 +7,7 @@ import json
 
 
 def get_input():
-    user_input = input("What city's weather do you want?\nEnter in form: City, State/Province, Country\n")
+    user_input = input("What city's weather do you want?\nEnter in form: City, Country, State/Province\n")
     return user_input.split(",")
 
 
@@ -17,9 +17,9 @@ def accepting_input():
         if len(entered) == 1:
             message = "Defaulting to largest population with city name match ..."
         elif len(entered) == 2:
-            message = "Matching largest population city and within the state/province ..."
+            message = "Matching largest population city with country ..."
         else:
-            message = "Matching all three, city name, state/province, and country ..."
+            message = "Matching all three, city name, country, and state/province ..."
         print(message)
         get_location(entered)
 
@@ -31,48 +31,66 @@ def validate_input(entered):
         print("Too many or too few inputs, ensure to follow input guidelines\n")
         accepting_input()
 
-    for idx, input_data in enumerate(entered):
+    for i, input_data in enumerate(entered):
         if not input_data.strip() or input_data.strip() == '\n':
-            print(f"{messages[idx]} input is not valid, ensure to follow input guidelines\n")
+            print(f"{messages[i]} input is not valid, ensure to follow input guidelines\n")
             accepting_input()
     return True
 
 
 def get_location(data):
-    input_city = data[0].strip().replace(' ', '+')
-    input_state = data[1].strip().replace(' ', '+') if len(data) >= 2 else None
-    input_country = data[2].strip().replace(' ', '+') if len(data) >= 3 else None
-    geocaching(input_city, input_state, input_country)
+    city = data[0].strip().replace(' ', '+')
+    country = data[1].strip() if len(data) >= 2 else None
+    state = data[2].strip() if len(data) >= 3 else None
+    geocaching(city, country, state)
 
 
-def geocaching(input_city, input_state, input_country):
+def geocaching(input_city, input_country, input_state):
     try:
         city_url = f"https://geocoding-api.open-meteo.com/v1/search?name={input_city}&count=10&language=en&format=json"
         cities = json.loads(urlopen(city_url).read())
+        state_valid = country_valid = False
 
-        latitude = cities['results'][0]['latitude']
-        longitude = cities['results'][0]['longitude']
-        country = cities['results'][0]['country']
+        for city in cities['results']:
+            latitude = city['latitude']
+            longitude = city['longitude']
+            country = city['country']
 
-        if input_state is not None:
-            state = ''
-            for i in range(1, 4):
-                try:
-                    string = f"admin{i}"
-                    state = cities['results'][0][string]
-                    if input_state.lower() is state.lower():
-                        break
-                except KeyError:
-                    break
-            if not input_state.lower() is state.lower():
-                raise Exception
+            if input_country is not None and not country_valid:
+                if country.lower() == input_country.lower():
+                    country_valid = True
 
-        if input_country is not None:
-            if country.lower() is not input_country.lower():
-                raise Exception
+            if input_state is not None and not state_valid:
+                for i in range(1, 4):
+                    try:
+                        string = f"admin{i}"
+                        state = city[string]
+                        if input_state.lower() == state.lower():
+                            state_valid = True
+                            break
+                    except KeyError:
+                        pass
 
-        search_location(latitude, longitude)
-    except Exception:
+            if country_valid and input_state is None:
+                search_location(latitude, longitude)
+            if state_valid and country_valid:
+                search_location(latitude, longitude)
+                break
+
+        if input_state is None and input_country is None:
+            search_location(latitude, longitude)
+        elif not (state_valid or country_valid):
+            print("No matching states/provinces or countries found")
+            accepting_input()
+        elif not state_valid:
+            print("No matching states/provinces found, but the country matches")
+            accepting_input()
+        elif not country_valid:
+            print("The country does not match any cities")
+            accepting_input()
+
+    except Exception as e:
+        print(e)
         print("Input is not valid location\n")
         accepting_input()
 
