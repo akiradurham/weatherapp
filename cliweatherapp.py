@@ -7,7 +7,7 @@ import json
 
 
 def get_input():
-    user_input = input("What city's weather do you want?\nEnter in form: City, Country, State/Province\n")
+    user_input = input("\nWhat city's weather do you want?\nEnter in form: City, Country, State/Province\n")
     return user_input.split(",")
 
 
@@ -71,27 +71,32 @@ def geocaching(input_city, input_country, input_state):
                     except KeyError:
                         pass
 
-            if country_valid and input_state is None:
+            if input_state is None and input_country is None:
                 search_location(latitude, longitude)
-            if state_valid and country_valid:
+                break
+            elif country_valid and input_state is None:
+                search_location(latitude, longitude)
+                break
+            elif country_valid and state_valid:
                 search_location(latitude, longitude)
                 break
 
-        if input_state is None and input_country is None:
-            search_location(latitude, longitude)
-        elif not (state_valid or country_valid):
-            print("No matching states/provinces or countries found")
-            accepting_input()
-        elif not state_valid:
+        if not country_valid and input_country is not None:
+            if not state_valid and input_state is not None:
+                print("No matching countries and states/provinces found")
+                accepting_input()
+            elif state_valid and input_state is not None:
+                print("The country does not match the given city, but there is a state/province match")
+                accepting_input()
+            else:
+                print("The country does not match the given city")
+                accepting_input()
+        elif not state_valid and (input_state and input_country) is not None:
             print("No matching states/provinces found, but the country matches")
-            accepting_input()
-        elif not country_valid:
-            print("The country does not match any cities")
             accepting_input()
 
     except Exception as e:
-        print(e)
-        print("Input is not valid location\n")
+        print("Input is not valid location")
         accepting_input()
 
 
